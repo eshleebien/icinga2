@@ -12,15 +12,13 @@ services:
     env_file:
       - secrets_sql.env
     environment:
-      - ICINGA2_FEATURE_GRAPHITE=1
+      - ICINGA2_FEATURE_GRAPHITE=0
       # Important:
       # keep the hostname graphite the same as
       # the name of the graphite docker-container
       - ICINGA2_FEATURE_GRAPHITE_HOST=graphite
       - ICINGA2_FEATURE_GRAPHITE_PORT=2003
       - ICINGA2_FEATURE_GRAPHITE_URL=http://graphite
-      # - ICINGA2_FEATURE_GRAPHITE_SEND_THRESHOLDS=true
-      # - ICINGA2_FEATURE_GRAPHITE_SEND_METADATA=false
       #- ICINGAWEB2_ADMIN_USER=icingaadmin
       #- ICINGAWEB2_ADMIN_PASS=icinga
       #- ICINGA2_USER_FULLNAME=Icinga2 Docker Monitoring Instance
@@ -47,19 +45,9 @@ services:
       # - ./msmtp/msmtprc:/etc/msmtprc:ro
       # - ./msmtp/aliases:/etc/aliases:ro
     ports:
-      - "80:80"
+      - "8080:80"
       - "443:443"
       - "5665:5665"
-  graphite:
-    image: graphiteapp/graphite-statsd:latest
-    container_name: graphite
-    restart: on-failure:5
-    hostname: graphite
-    volumes:
-      - ./data/graphite/conf:/opt/graphite/conf
-      - ./data/graphite/storage:/opt/graphite/storage
-      - ./data/graphite/log/graphite:/var/log/graphite
-      - ./data/graphite/log/carbon:/var/log/carbon
   mysql:
     image: mariadb
     container_name: mysql
@@ -67,5 +55,51 @@ services:
       - secrets_sql.env
     volumes:
       - ./data/mysql/data:/var/lib/mysql
+      - ./data/mysql/queries:/srv/
       # If you have previously used the container's internal DB use:
       #- ./data/icinga/lib/mysql:/var/lib/mysql
+    ports:
+      - "3306:3306"
+  web-01.dev.local:
+    image: chussenot/tiny-server:latest
+    container_name: web-01.dev.local
+  web-02.dev.local:
+    image: chussenot/tiny-server:latest
+    container_name: web-02.dev.local
+  queue-01.dev.local:
+    image: chussenot/tiny-server:latest
+    container_name: queue-01.dev.local
+  web-01.prod.example.com:
+    image: chussenot/tiny-server:latest
+    container_name: web-01.prod.example.com
+  web-02.prod.example.com:
+    image: chussenot/tiny-server:latest
+    container_name: web-02.prod.example.com
+  web-03.prod.example.com:
+    image: chussenot/tiny-server:latest
+    container_name: web-03.prod.example.com
+  queue-01.prod.example.com:
+    image: chussenot/tiny-server:latest
+    container_name: queue-01.prod.example.com
+  queue-02.prod.example.com:
+    image: chussenot/tiny-server:latest
+    container_name: queue-02.prod.example.com
+  queue-03.prod.example.com:
+    image: chussenot/tiny-server:latest
+    container_name: queue-03.prod.example.com
+
+  web-01.staging.example.com:
+    image: chussenot/tiny-server:latest
+    container_name: web-01.staging.example.com
+  web-02.staging.example.com:
+    image: chussenot/tiny-server:latest
+    container_name: web-02.staging.example.com
+  web-03.staging.example.com:
+    image: chussenot/tiny-server:latest
+    container_name: web-03.staging.example.com
+  queue-01.staging.example.com:
+    image: chussenot/tiny-server:latest
+    container_name: queue-01.staging.example.com
+  queue-02.staging.example.com:
+    image: chussenot/tiny-server:latest
+    container_name: queue-02.staging.example.com

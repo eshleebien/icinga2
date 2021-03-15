@@ -4,9 +4,6 @@ This repository contains the source for the [icinga2](https://www.icinga.org/ici
 
 The dockerhub-repository is located at [https://hub.docker.com/r/jordan/icinga2/](https://hub.docker.com/r/jordan/icinga2/).
 
-This build is automated by push for the git-repo. Just crawl it via:
-
-    docker pull jordan/icinga2
 
 ## Image details
 
@@ -27,28 +24,40 @@ This build is automated by push for the git-repo. Just crawl it via:
 1. No SSH. Use docker [exec](https://docs.docker.com/engine/reference/commandline/exec/) or [nsenter](https://github.com/jpetazzo/nsenter)
 1. If passwords are not supplied, they will be randomly generated and shown via stdout.
 
-## Usage
-
-Start a new container and bind to host's port 80
-
-    docker run -p 80:80 -h icinga2 -t jordan/icinga2:latest
-
 ### docker-compose
 
 Clone the repository and create a file `secrets_sql.env`, which contains the `MYSQL_ROOT_PASSWORD` variable.
 
-    git clone https://github.com/jjethwa/icinga2.git
+    git clone https://github.com/eshleebien/icinga2.git
     cd icinga2
     echo "MYSQL_ROOT_PASSWORD=<password>" > secrets_sql.env
+    echo "DEFAULT_MYSQL_PASS=<password>" >> secrets_sql.env
     docker-compose up
 
-This boots up an icinga(web)2 container with another MySQL container reachable on [http://localhost](http://localhost) with the default credentials *icingaadmin*:*icinga*.
+This boots up an icinga(web)2 container with another MySQL container reachable on [http://localhost:8080](http://localhost:8080) with the default credentials *icingaadmin*:*icinga*.
 
 To ensure restarts, you should set `DEFAULT_MYSQL_PASS`
 
+If you want to start over, run
+
+    cd icinga2
+    docker-compose rm
+    rm -r data
+    docker-compose up
+
+Install sample cmdb `cmdb.sql` in mariadb container
+
+    cd icinga2
+    cp cmdb.sql data/mysql/queries/
+    docker ps | findstr "mariadb"
+    docker exec -it <docker-container-id> bash
+    mysql -uroot -p -e "CREATE DATABASE cmdb;"
+    mysql -uroot -p cmdb < /srv/cmdb.sql
+
+
 ## Icinga Web 2
 
-Icinga Web 2 can be accessed at [http://localhost/icingaweb2](http://localhost/icingaweb2) with the credentials *icingaadmin*:*icinga* (if not set differently via variables).  When using a volume for /etc/icingaweb2, make sure to set ICINGAWEB2_ADMIN_USER and ICINGAWEB2_ADMIN_PASS
+Icinga Web 2 can be accessed at [http://localhost:8080/icingaweb2](http://localhost:8080/icingaweb2) with the credentials *icingaadmin*:*icinga* (if not set differently via variables).  When using a volume for /etc/icingaweb2, make sure to set ICINGAWEB2_ADMIN_USER and ICINGAWEB2_ADMIN_PASS
 
 ### Saving PHP Sessions
 
